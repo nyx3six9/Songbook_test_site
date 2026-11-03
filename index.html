@@ -207,6 +207,47 @@ function assembleLayout(hebrewRows,englishRows,diagnosticContext){
   });
  }
 
+
+async function retryFailedBadges(file,badges,rows,scale){
+ const bitmap=await createImageBitmap(file),source=document.createElement('canvas');
+ source.width=bitmap.width;source.height=bitmap.height;
+ const sc=source.getContext('2d',{willReadFrequently:true});sc.drawImage(bitmap,0,0);bitmap.close();
+ const recovered=[],attempts=[];
+ for(let i=0;i<badges.length;i++){
+  if(ocrCancelled)break;
+  const b=badges[i];
+  const existing=rows.flatMap(r=>r.words).filter(w=>{const x=(w.x+w.w/2)/scale,y=(w.y+w.h/2)/scale;return x>=b.x-3&&x<=b.x+b.w+3&&y>=b.y-3&&y<=b.y+b.h+3;});
+  if(existing.some(w=>chordToken.test(normalizeOCRChord(w.text))))continue;
+  const x=Math.max(0,b.x-3),y=Math.max(0,b.y-3),w=Math.min(source.width-x,b.w+6),h=Math.min(source.height-y,b.h+6);
+  const input=sc.getImageData(x,y,w,h),trials=[];let winner=null;
+  for(const threshold of [145,190,225]){
+   const tmp=document.createElement('canvas');tmp.width=w;tmp.height=h;
+   const tc=tmp.getContext('2d'),pixels=tc.createImageData(w,h);
+   for(let p=0;p<w*h;p++){
+    const k=p*4,r=input.data[k],g=input.data[k+1],bl=input.data[k+2],lo=Math.min(r,g,bl),hi=Math.max(r,g,bl);
+    const ink=lo>threshold&&(hi-lo)<85;
+    pixels.data[k]=pixels.data[k+1]=pixels.data[k+2]=ink?0:255;pixels.data[k+3]=255;
+   }
+   tc.putImageData(pixels,0,0);
+   const c=document.createElement('canvas');c.width=w*4;c.height=h*4;
+   const cc=c.getContext('2d');cc.imageSmoothingEnabled=false;cc.drawImage(tmp,0,0,c.width,c.height);
+   await chordWorker.setParameters({tessedit_pageseg_mode:'7'});
+   const o=await chordWorker.recognize(c);
+   const token=normalizeOCRChord((o.data.text||'').trim().split(' ').join('').replace(/[♯]/g,'#').replace(/[♭]/g,'b'));
+   const confidence=Math.round(o.data.confidence||0),valid=chordToken.test(token);
+   trials.push({threshold,token,confidence,valid});
+   if(valid&&confidence>=55&&(!winner||confidence>winner.confidence))winner={token,confidence};
+  }
+  attempts.push({badge:i+1,original:existing.map(z=>z.text),trials,accepted:winner});
+  if(winner){
+   const word={text:winner.token,x:(b.x+b.w/2)*scale-1,y:(b.y+b.h/2)*scale-1,w:2,h:2,confidence:winner.confidence};
+   recovered.push({words:[word],x:word.x,y:word.y,h:word.h,text:word.text});
+  }
+ }
+ await chordWorker.setParameters({tessedit_pageseg_mode:'3'});
+ return {recovered,attempts};
+}
+
 async function recognizeLayout(file,imageIndex){
  $('ocrStatus').textContent='מאתר תיבות צבעוניות ומזהה אקורדים…';
  const badges=await detectChordBadges(file);
@@ -231,6 +272,11 @@ async function recognizeLayout(file,imageIndex){
  // Coordinates of the badge-only image must match the normalized lyric image.
  if(badges.length){const sx=prepared.width/(await imageWidth(file));for(const row of engRows){row.y*=sx;row.h*=sx;for(const word of row.words){word.x*=sx;word.y*=sx;word.w*=sx;word.h*=sx;}}}
  debugOCR('image detail',{index:imageIndex,badges:badges.length,hebrewRows:hebRows.length,englishRows:engRows.length});
+ if(badges.length){
+  const retry=await retryFailedBadges(file,badges,engRows,prepared.width/(await imageWidth(file)));
+  engRows.push(...retry.recovered);
+  debugOCR('badge retries',{index:imageIndex,attempts:retry.attempts,recovered:retry.recovered.length});
+ }
  const diagnostics={index:imageIndex};
  const result=assembleLayout(hebRows,engRows,diagnostics);
  const sx=prepared.width/(await imageWidth(file));
@@ -255,6 +301,6 @@ async function imageWidth(file){const b=await createImageBitmap(file);const w=b.
 async function loadOCR(){if(window.Tesseract)return;await new Promise((resolve,reject)=>{let sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=resolve;sc.onerror=()=>reject(Error('לא ניתן לטעון את מנוע הזיהוי. בדקי את החיבור לאינטרנט.'));document.head.append(sc)})}
 $('clearOCR').onclick=()=>{if($('body').value.trim()&&!confirm('לנקות את כל הטקסט והאקורדים בשדה העריכה? השיר השמור בספרייה לא יימחק עד שתלחצי על שמירה.'))return;$('body').value='';$('ocrStatus').textContent='שדה הזיהוי נוקה. ניתן להעלות ולזהות שוב.';};
 $('stopOCR').onclick=async()=>{ocrCancelled=true;$('ocrStatus').textContent='מבטל זיהוי…';if(ocrWorker){try{await ocrWorker.terminate()}catch(e){}ocrWorker=null}if(chordWorker){try{await chordWorker.terminate()}catch(e){}chordWorker=null}};
-$('recognize').onclick=async()=>{ocrDebug=[];debugOCR('version','visual-badges-prototype-3');const files=[...$('images').files];if(!files.length)return alert('בחרי לפחות תמונה אחת');ocrCancelled=false;$('recognize').disabled=true;$('stopOCR').classList.remove('hidden');$('ocrStatus').textContent='טוען מנוע זיהוי…';let parts=[];try{await loadOCR();ocrWorker=await Tesseract.createWorker('heb',1,{logger:m=>{if(m.status&&m.progress!=null)$('ocrStatus').textContent=`${m.status} — ${Math.round(m.progress*100)}%`}});chordWorker=await Tesseract.createWorker('eng');await chordWorker.setParameters({tessedit_char_whitelist:'ABCDEFGabcdefg#bmajinsudgM0123456789/()+- ',preserve_interword_spaces:'1'});for(let i=0;i<files.length;i++){if(ocrCancelled)break;$('ocrStatus').textContent=`מזהה תמונה ${i+1} מתוך ${files.length}…`;let detected=null;try{detected=await recognizeLayout(files[i],i+1)}catch(err){console.warn('Layout OCR fallback',err)}if(ocrCancelled)break;if(!detected){let result=await ocrWorker.recognize(files[i]);detected=processOCRText(result.data.text)}parts.push(detected);}if(!ocrCancelled){let previous=$('body').value.trim(),detected=parts.filter(Boolean).join('\n');if(!detected)throw Error('לא זוהה טקסט. נסי צילום חד וברור יותר.');if(previous&&!confirm('להחליף את הטקסט הקיים בתוצאה שזוהתה?'))$('body').value=previous+'\n'+detected;else $('body').value=detected;$('ocrStatus').textContent='הזיהוי הסתיים. השווי את התוצאה מול התמונות שמוצגות לצד שדה העריכה.  האקורדים נותחו לפי טקסט ומיקום, ללא תלות בצבע. בדקי במיוחד את הפזמון, אקורדים חסרים וטעויות בזיהוי י׳ לפני השמירה.';}else $('ocrStatus').textContent='הזיהוי בוטל.';}catch(err){if(!ocrCancelled){$('ocrStatus').textContent='שגיאה בזיהוי: '+(err.message||err);}}finally{if(ocrWorker){try{await ocrWorker.terminate()}catch(e){}ocrWorker=null;}if(chordWorker){try{await chordWorker.terminate()}catch(e){}chordWorker=null;}$('recognize').disabled=false;$('stopOCR').classList.add('hidden')}};
+$('recognize').onclick=async()=>{ocrDebug=[];debugOCR('version','visual-badges-prototype-4');const files=[...$('images').files];if(!files.length)return alert('בחרי לפחות תמונה אחת');ocrCancelled=false;$('recognize').disabled=true;$('stopOCR').classList.remove('hidden');$('ocrStatus').textContent='טוען מנוע זיהוי…';let parts=[];try{await loadOCR();ocrWorker=await Tesseract.createWorker('heb',1,{logger:m=>{if(m.status&&m.progress!=null)$('ocrStatus').textContent=`${m.status} — ${Math.round(m.progress*100)}%`}});chordWorker=await Tesseract.createWorker('eng');await chordWorker.setParameters({tessedit_char_whitelist:'ABCDEFGabcdefg#bmajinsudgM0123456789/()+- ',preserve_interword_spaces:'1'});for(let i=0;i<files.length;i++){if(ocrCancelled)break;$('ocrStatus').textContent=`מזהה תמונה ${i+1} מתוך ${files.length}…`;let detected=null;try{detected=await recognizeLayout(files[i],i+1)}catch(err){console.warn('Layout OCR fallback',err)}if(ocrCancelled)break;if(!detected){let result=await ocrWorker.recognize(files[i]);detected=processOCRText(result.data.text)}parts.push(detected);}if(!ocrCancelled){let previous=$('body').value.trim(),detected=parts.filter(Boolean).join('\n');if(!detected)throw Error('לא זוהה טקסט. נסי צילום חד וברור יותר.');if(previous&&!confirm('להחליף את הטקסט הקיים בתוצאה שזוהתה?'))$('body').value=previous+'\n'+detected;else $('body').value=detected;$('ocrStatus').textContent='הזיהוי הסתיים. השווי את התוצאה מול התמונות שמוצגות לצד שדה העריכה.  האקורדים נותחו לפי טקסט ומיקום, ללא תלות בצבע. בדקי במיוחד את הפזמון, אקורדים חסרים וטעויות בזיהוי י׳ לפני השמירה.';}else $('ocrStatus').textContent='הזיהוי בוטל.';}catch(err){if(!ocrCancelled){$('ocrStatus').textContent='שגיאה בזיהוי: '+(err.message||err);}}finally{if(ocrWorker){try{await ocrWorker.terminate()}catch(e){}ocrWorker=null;}if(chordWorker){try{await chordWorker.terminate()}catch(e){}chordWorker=null;}$('recognize').disabled=false;$('stopOCR').classList.add('hidden')}};
 $('images').onchange=async e=>{const files=[...e.target.files];$('ocrStatus').textContent='מכין תמונות לשמירה…';try{const added=await Promise.all(files.map(compactImage));pendingImages.push(...added);renderSavedImages(pendingImages);$('ocrStatus').textContent='התמונות מוכנות ויישמרו עם השיר. לחצי על זיהוי כדי לקרוא אותן.'}catch(err){$('ocrStatus').textContent='שגיאה בהכנת תמונות: '+err.message}};renderLibrary();
 </script></body></html>
