@@ -64,3 +64,26 @@ Same dark-mode image tested on v3: normalized 2412x3584, 29 saturated regions, 1
 - Avoid changing production until the user explicitly approves a reviewed PR.
 - Keep test screenshots and copyrighted song text in private repositories only.
 - For every iteration: document baseline, changes, test commands, metrics, remaining defects, commit and preview URL.
+
+## Verified browser run — prototype 4 (2026-11-02)
+The user ran the **same dark screenshot** in the live experimental site and supplied full diagnostic JSON. This is a real browser run, unlike the earlier syntax-only check.
+- Version: `visual-badges-prototype-4`; normalized image 2412×3584; dark background; **29 badges**, **19 Hebrew rows**, **28 initial English rows**.
+- `badge retries`: **6 problematic badges retried**, **4 accepted recoveries**. Chord candidates increased **24 → 28** versus v3. Unmatched candidates remained **1**. Badges with ≥1 grammar-valid chord increased **23 → 27**; two badges still have none. **These counts do not establish recognition accuracy.**
+- Badge #3: original `Fa`; trials `F#` (confidence 89), `Fi` (85), `0` (16); accepted `F#`.
+- Badge #6: original `B8bm`; trials `Bbm` (51), `Ebm` (80), `BE` (0); accepted `Ebm`. **Ambiguous: the confidence-maximizing answer may be wrong. Do not silently treat Ebm as ground truth.**
+- Badge #11: no OCR text at any threshold; unresolved.
+- Badge #12: original `8bm`; trials `Bbm` (89), `Bm` (52), `BEE` (20); accepted `Bbm`.
+- Badge #18: original `Ci` (confidence 0); trial `C#` had confidence **0** and was rejected; unresolved. The screenshot may show C#, but do not assert without visual verification.
+- Badge #28: original empty; trial `E` (59) accepted. **Low confidence; verify against screenshot.**
+- Badge #23: merged region x1053 y1377 w98 h31 yielded `B8bm` (invalid) and `Ab` (valid). `Ab` remains unmatched. This region is near the `מעבר:` heading and may be a chord-only transition; preserve independent chord lines rather than forcing an incorrect lyric association.
+- Badge #21: merged region x775 y1099 w110 h31 yielded both `Ebm` and `F#`; two words were detected but should ideally have independent badge geometry.
+- Hebrew remains imperfect: examples include `בשביילי` and malformed `פזמון|:`; `מעבר:` is a section heading, not a lyric/chord.
+- The assembled result appends the unmatched `Ab |` at the end, which is a **layout-order bug**: if the chord is a standalone transition, it belongs at its original vertical position, not after the final verse.
+
+### Immediate instructions for Codex
+1. **First task: create reproducible regression tests, not a speculative OCR rewrite.** Inspect actual code, verify whether OCR runs in browser only, and design a headless/browser fixture harness (e.g., Playwright if suitable). Use private screenshots only in a private execution environment.
+2. Capture per-badge ground truth from the user's original screenshots; distinguish grammar-valid from visually correct chords. Do not claim that all four v4 recoveries are correct.
+3. Preserve the v4 baseline and report both numeric deltas and actual correctness, including false positives, missed badges, merged regions, row association, and Hebrew accuracy.
+4. Do not expose screenshots or copyrighted full song lyrics in the public repository or logs. Keep private fixture access explicitly authorized.
+5. Propose a small reviewed PR against the experimental repository. Do **not** change production main without explicit user approval.
+6. If you are already running a task, read this updated `AGENTS.md` before editing and state which repository/branch you are operating on.
