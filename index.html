@@ -1,0 +1,183 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ספריית השירים שלי — v3.0.13</title><style>:root{font-family:system-ui,Arial;background:#f5f6fa;color:#202538}body{margin:0}header{background:#292f53;color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:1.4rem;margin:0}main{max-width:1050px;margin:24px auto;padding:0 18px}button,.button{background:#514cbb;color:white;border:0;border-radius:9px;padding:10px 15px;cursor:pointer;font:inherit}button.secondary{background:#e4e6f2;color:#262b44}button.danger{background:#a72f48}input,textarea,select{font:inherit;border:1px solid #cdd1e0;border-radius:8px;padding:10px;box-sizing:border-box}input[type=text]{width:100%}textarea{width:100%;min-height:330px;line-height:1.8;direction:rtl}.card{background:white;border-radius:14px;padding:22px;margin:16px 0;box-shadow:0 2px 12px #18204612}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.muted{color:#646b80;font-size:.92rem}.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.song{border:1px solid #e0e2ec;border-radius:10px;padding:15px;cursor:pointer;background:#fafaff}.song:hover{border-color:#514cbb}.song h3{margin:0 0 6px}.line{display:grid;grid-template-columns:var(--song-chord-width,110px) var(--song-lyrics-width,350px);justify-content:end;direction:ltr;border-bottom:1px solid #f1f1f5;padding:7px 0;gap:10px;align-items:start}.chords{position:relative;direction:ltr;text-align:left;color:#514cbb;font-weight:700;white-space:pre-wrap;display:flex;align-items:center;gap:9px;flex-wrap:wrap}.chord-text{white-space:pre-wrap}.lyrics{direction:rtl;text-align:right;white-space:pre-wrap}.section-heading{font-weight:800;font-size:1.1rem;background:#f7f7fc;border-radius:7px;padding:11px 8px;margin-top:14px}.section-heading .lyrics{font-weight:800}.line-actions{position:absolute;right:100%;top:0;display:flex;gap:5px;justify-content:flex-start;margin-top:0;flex-shrink:0}.line-edit{background:#f7f8ff;border:1px solid #cfd1ed;border-radius:10px;padding:12px;margin:8px 0}.line-edit label{display:block;font-size:.9rem;margin:7px 0 3px}.line-edit input{width:100%}.line-edit .row{margin-top:10px}.line .mini-edit{padding:4px 9px;font-size:.8rem;background:#ececfa;color:#34315d}.suspicious{border-bottom:2px dotted #d08a27}.line:not(:hover) .mini-edit{opacity:.65}@media print{.mini-edit,.line-edit{display:none!important}}.label{display:block;margin:14px 0 5px;font-weight:600}.preview{max-height:180px;overflow:auto;display:flex;gap:8px;margin-top:10px}.preview img{max-height:130px;border-radius:6px}.note{background:#fff5db;border-radius:8px;padding:12px;margin-top:12px}@media(max-width:550px){.line{grid-template-columns:var(--song-chord-width,110px) var(--song-lyrics-width,350px);gap:7px}header{padding:16px}}@media print{header,.noprint,.card.editor{display:none!important}body{background:white}.card{box-shadow:none;padding:0}.line{break-inside:avoid;grid-template-columns:var(--song-chord-width,110px) var(--song-lyrics-width,350px);justify-content:end;gap:7px}} .review-layout{display:grid;grid-template-columns:minmax(240px,42%) 1fr;gap:14px;align-items:start}.source-panel{position:sticky;top:12px;max-height:76vh;overflow:auto;border:1px solid #d8dbe8;border-radius:10px;padding:10px;background:#fff}.source-panel img{width:100%;height:auto;display:block;margin-bottom:12px}.source-panel img+img{border-top:2px solid #ddd;padding-top:12px}.review-layout textarea{min-height:520px}@media(max-width:720px){.review-layout{grid-template-columns:1fr}.source-panel{position:static;max-height:320px}}  #lines{width:var(--song-total-width,auto);max-width:none;margin-left:auto!important;margin-right:0!important}#lines .line{box-sizing:border-box;width:100%}#viewer{overflow-x:auto}@media print{#viewer{overflow:visible}#lines{max-width:100%;width:var(--song-total-width,auto)}} .viewer-source{margin:15px 0;border:1px solid #d8dbe8;border-radius:10px;padding:12px;background:#fafaff}.viewer-source img{display:block;max-width:100%;height:auto;margin:12px auto;border-radius:6px}.mode-choice{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0}.mode-choice label{display:flex;gap:5px;align-items:center}.line-edit input[readonly]{background:#f3f3f8;color:#666} @media print{.viewer-source{display:none!important}}</style></head><body><header><h1>🎵 ספריית השירים שלי</h1><div class="row"><button id="home" class="secondary">הספרייה</button><button id="new">+ הוספת שיר</button></div></header><main><section id="library" class="card"><h2>השירים שלי</h2><input id="search" type="text" placeholder="חיפוש לפי שם שיר או מבצע"><p class="muted">השירים נשמרים בדפדפן הנוכחי. מומלץ לייצא גיבוי.</p><div class="row"><button id="backup" class="secondary">ייצוא גיבוי JSON</button><label class="button">ייבוא גיבוי<input id="restore" type="file" accept="application/json" hidden></label></div><div id="songs" class="grid" style="margin-top:20px"></div></section><section id="edit" class="card hidden editor"><h2 id="editTitle">הוספת שיר</h2><label class="label">שם השיר</label><input id="title" type="text"><label class="label">מבצע</label><input id="artist" type="text"><label class="label">תמונות השיר (ניתן לבחור כמה תמונות)</label><input id="images" type="file" accept="image/*" multiple><div id="previews" class="preview"></div><div class="row" style="margin-top:12px"><button id="recognize" type="button">🔎 זיהוי מהתמונות</button><button id="stopOCR" type="button" class="secondary hidden">ביטול זיהוי</button><button id="clearOCR" type="button" class="secondary">ניקוי טקסט ואקורדים שזוהו</button></div><p id="ocrStatus" class="muted" role="status" aria-live="polite"></p><details id="ocrDiagnostics" class="note"><summary>אבחון זיהוי אקורדים — לפתיחה לאחר זיהוי</summary><p class="muted">מציג את שלבי הזיהוי ואת האקורדים שאותרו. אפשר להעתיק את הדוח כדי לבדוק מדוע C חסר.</p><button id="copyOCRDiagnostics" type="button" class="secondary">העתקת דוח אבחון</button><pre id="ocrDiagnosticOutput" dir="ltr" style="white-space:pre-wrap;overflow:auto;max-height:360px;text-align:left"></pre></details><p class="muted">אפשר לבחור כמה תמונות לאותו שיר. הן מעובדות לפי סדר הבחירה. מומלץ לבדוק כפילויות בפזמונים ושורות חופפות.</p><div class="note">גם בגרסה 3.0 הזיהוי אינו מושלם: בדקי במיוחד אקורדים מסוג Ab ו-F# ושורות עם עברית ואנגלית. לאחר בחירת התמונות לחצי על ״זיהוי מהתמונות״. הזיהוי משתמש במנוע OCR חינמי; טעינת המנוע ומודלי השפה מצריכה אינטרנט. בדקי היטב את המילים והאקורדים לפני השמירה. אם הזיהוי נכשל, אפשר להקליד ידנית. בכל שורה הפרידי בין האקורדים למילים באמצעות הסימן |. לדוגמה: Am G | מילים של השורה. אפשר להשאיר צד אקורדים ריק.</div><label class="label">אקורדים | מילים — שורה אחת לכל שורת שיר</label><div class="review-layout"><div class="source-panel" id="sourcePanel"><strong>תמונות מקור להשוואה</strong><div id="sourceImages"></div><p class="muted">השווי מול התמונה בזמן תיקון המילים והאקורדים.</p></div><textarea id="body" placeholder="Am G | שורה ראשונה של השיר&#10;F E7 | שורה שנייה של השיר"></textarea></div><div class="row"><button id="save">שמירת השיר</button><button id="cancel" class="secondary">ביטול</button></div></section><section id="viewer" class="card hidden"><div class="row between"><div><h2 id="viewTitle"></h2><p id="viewArtist" class="muted"></p></div><div class="row noprint"><button id="editSong" class="secondary">עריכה</button><button id="deleteSong" class="danger">מחיקה</button></div></div><div class="row noprint"><button id="down">− חצי טון</button><strong id="transposeLabel">סולם מקורי</strong><button id="up">+ חצי טון</button><button id="reset" class="secondary">איפוס</button><button id="easy" class="secondary">🎸 גרסה קלה</button></div><div class="row noprint" style="margin-top:12px"><label for="capo">קאפו:</label><select id="capo" aria-label="מיקום קאפו"><option value="0">ללא קאפו</option><option value="1">סריג 1</option><option value="2">סריג 2</option><option value="3">סריג 3</option><option value="4">סריג 4</option><option value="5">סריג 5</option><option value="6">סריג 6</option><option value="7">סריג 7</option><option value="8">סריג 8</option><option value="9">סריג 9</option><option value="10">סריג 10</option><option value="11">סריג 11</option><option value="12">סריג 12</option></select><label for="songKey">סולם האקורדים:</label><select id="songKey" aria-label="סולם האקורדים המוצגים"><option value="">לא הוגדר</option></select></div><p id="capoPrint" class="muted"></p><p id="easyStatus" class="muted noprint"></p><p class="muted noprint">תיקון האקורדים מתבצע תמיד בסולם המקורי. לחצי על ״תקני שורה״ ליד השורה. השינויים נשמרים רק לאחר לחיצה על ״שמור תיקון״.</p><div class="row noprint" style="margin-top:14px"><button id="toggleSource" class="secondary" type="button">הצגת תמונות המקור</button><span id="sourceHint" class="muted"></span></div><div id="viewerSource" class="viewer-source hidden noprint"><strong>תמונות המקור</strong><div id="viewerSourceImages"></div></div><div id="lines" style="margin:24px 0"></div><div class="row noprint"><button id="pdf">הדפסה / שמירה כ-PDF</button><button id="word">הורדת Word (.doc)</button></div><p class="muted noprint">הייצוא ל-Word הוא בפורמט DOC תואם Word (לא DOCX). שמירת PDF מתבצעת דרך חלון ההדפסה של הדפדפן.</p></section></main><script>
+const $=id=>document.getElementById(id);const KEY='hebrew-songbook-v1';let data=JSON.parse(localStorage.getItem(KEY)||'[]'),current=null,editing=null,offset=0;const sharpNotes=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const flatNotes=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const pitch={C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11};
+// Transpose each chord token independently, preserving punctuation and spacing.
+// Chords are always stored in the original key; the display is derived from them.
+const transposeChordToken=/^([A-G])([#♯b♭]?)(.*)$/;
+const chordSuffix=/^(?:(?:maj|min|dim|aug|sus|add|m|M|ø|°|\+|−|-)?(?:\d{0,2})?(?:\([^)]*\))?(?:\/[A-G][#♯b♭]?)?)$/i;
+function trans(ch,n){
+ if(!n||!ch)return ch;
+ return ch.replace(/[^\s,;|]+/g,token=>{
+  const outer=token.match(/^([([{]*)(.*?)([)\]}.,:!?]*)$/);
+  if(!outer)return token;
+  const [,lead,body,trail]=outer;
+  const m=body.match(transposeChordToken);if(!m)return token;
+  const root=m[1]+(m[2]==='♯'?'#':m[2]==='♭'?'b':m[2]);
+  if(pitch[root]===undefined||!chordSuffix.test(m[3]))return token;
+  const preferFlats=/b|♭/.test(root)||(!/[#♯]/.test(root)&&/(?:^|\s)(?:Bb|Eb|Ab|Db|Gb)(?:\s|$)/.test(ch));
+  const notes=preferFlats?flatNotes:sharpNotes;
+  const step=x=>notes[((pitch[x]+n)%12+12)%12];
+  let suffix=m[3].replace(/\/([A-G])([#♯b♭]?)/g,(all,base,acc)=>{
+    const bass=base+(acc==='♯'?'#':acc==='♭'?'b':acc);
+    return pitch[bass]===undefined?all:'/'+step(bass);
+  });
+  return lead+step(root)+suffix+trail;
+ });
+}
+function formatOffset(n){if(n===0)return 'סולם מקורי · שינוי: 0 חצאי טונים (0 טונים)';let sign=n>0?'+':'−',a=Math.abs(n),tone=a/2;return `שינוי מהמקור: ${sign}${a} חצאי טונים (${sign}${Number.isInteger(tone)?tone:tone.toFixed(1)} טונים)`;}
+function chordComplexity(c){let t=c.trim();if(!t)return 0;let m=t.match(/^([A-G][#b]?)(.*)$/);if(!m)return 0;let root=m[1],suffix=m[2];const easy=['C','D','E','G','A','Am','Dm','Em','E7','A7','D7','G7','C7'];let score=easy.includes(t)?0:1; if(root.includes('#')||root.includes('b'))score+=3; if(['F','Bm','B','Fm','Cm','Gm','F#m','C#m','Bbm','Ebm'].includes(root+suffix))score+=3; if(/dim|aug|maj7|sus|add|\//.test(suffix))score+=1;return score;}
+function easyOffset(body){const chords=body.split('\n').flatMap(r=>r.includes('|')?r.split('|')[0].trim().split(/\s+/).filter(Boolean):[]);if(!chords.length)return null;let options=[];for(let n=-6;n<=6;n++){let cost=chords.reduce((sum,c)=>sum+chordComplexity(trans(c,n)),0);options.push({n,cost});}options.sort((a,b)=>a.cost-b.cost||Math.abs(a.n)-Math.abs(b.n)||a.n-b.n);return options[0];}
+function persist(){localStorage.setItem(KEY,JSON.stringify(data))}function show(id){['library','edit','viewer'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}function renderLibrary(){show('library');let q=$('search').value.trim().toLowerCase();$('songs').replaceChildren();data.filter(s=>(s.title+' '+s.artist).toLowerCase().includes(q)).forEach(s=>{let div=document.createElement('div');div.className='song';let h=document.createElement('h3');h.textContent=s.title;let p=document.createElement('p');p.className='muted';p.textContent=s.artist||'ללא מבצע';div.append(h,p);div.onclick=()=>openSong(s.id);$('songs').append(div)});if(!$('songs').children.length)$('songs').textContent='אין שירים להצגה.'}function newSong(id=null){editing=id;let s=data.find(x=>x.id===id);pendingImages=(s?.images||[]).slice();$('editTitle').textContent=s?'עריכת שיר':'הוספת שיר';$('title').value=s?.title||'';$('artist').value=s?.artist||'';$('body').value=s?.body||'';$('images').value='';$('previews').replaceChildren();$('sourceImages').replaceChildren();renderSavedImages(s?.images||[]);$('ocrStatus').textContent='';show('edit')}function openSong(id){current=id;let s=data.find(x=>x.id===id);if(!s)return renderLibrary();offset=s.offset||0;$('viewTitle').textContent=s.title;$('viewArtist').textContent=s.artist;show('viewer');$('viewerSource').classList.add('hidden');renderSong()}function parseRow(row){let idx=row.indexOf('|');return {chords:idx<0?'':row.slice(0,idx).trim(),words:idx<0?row:row.slice(idx+1).trim()};}
+function headingRow(words,chords){return !chords&&/^(?:פזמון|מעבר|בית|פתיחה|סיום|גשר)(?:\s*\d+)?\s*[:：]?\s*$/.test(words.trim());}
+function storeEditedRow(index,chords,words){let s=data.find(x=>x.id===current);if(!s)return;let rows=s.body.split('\n');rows[index]=chords.trim()+' | '+words.trim();s.body=rows.join('\n');try{persist()}catch(e){alert('לא ניתן לשמור: אחסון הדפדפן מלא');return}renderSong();}
+function editRow(index){let s=data.find(x=>x.id===current),row=s.body.split('\n')[index],parts=parseRow(row);renderSong();let div=$('lines').children[index];if(!div)return;let panel=document.createElement('div');panel.className='line-edit noprint';let title=document.createElement('strong');title.textContent='תיקון שורה '+(index+1)+' — סולם מקורי בלבד';panel.append(title);let lbl1=document.createElement('label');lbl1.textContent='מילות השיר / כותרת';let wordInput=document.createElement('input');wordInput.type='text';wordInput.dir='rtl';wordInput.value=parts.words;panel.append(lbl1,wordInput);
+let labelOriginal=document.createElement('label');labelOriginal.textContent='אקורדים בסולם המקורי';let inputOriginal=document.createElement('input');inputOriginal.type='text';inputOriginal.dir='ltr';inputOriginal.value=parts.chords;panel.append(labelOriginal,inputOriginal);
+let hint=document.createElement('p');hint.className='muted';hint.textContent='התיקון נשמר בסולם המקורי. בתצוגת השיר האקורדים יומרו בהתאם לשינוי הסולם שנבחר.';panel.append(hint);
+let controls=document.createElement('div');controls.className='row';let save=document.createElement('button');save.textContent='שמור תיקון';save.onclick=()=>storeEditedRow(index,inputOriginal.value,wordInput.value);let cancel=document.createElement('button');cancel.className='secondary';cancel.textContent='ביטול';cancel.onclick=renderSong;let remove=document.createElement('button');remove.className='danger';remove.textContent='מחק שורה';remove.onclick=()=>{if(!confirm('למחוק רק את השורה הזו?'))return;let rows=s.body.split('\n');rows.splice(index,1);s.body=rows.join('\n');persist();renderSong()};controls.append(save,cancel,remove);panel.append(controls);div.after(panel);wordInput.focus();}
+const keyOptions=['C','Cm','C#','C#m','Db','Dbm','D','Dm','D#','D#m','Eb','Ebm','E','Em','F','Fm','F#','F#m','Gb','Gbm','G','Gm','G#','G#m','Ab','Abm','A','Am','A#','A#m','Bb','Bbm','B','Bm'];
+for(const key of keyOptions){const o=document.createElement('option');o.value=key;o.textContent=key;$('songKey').append(o)}
+function soundingKey(key,capo){if(!key||!capo)return key;const m=key.match(/^([A-G](?:#|b)?)(m?)$/);if(!m)return key;const preferFlat=m[1].includes('b');const notes=preferFlat?flatNotes:sharpNotes;return notes[(pitch[m[1]]+capo)%12]+m[2]}
+function capoDescription(song){const capo=Number(song.capo)||0;if(!capo)return 'ללא קאפו';const key=song.songKey||'';return 'קאפו: סריג '+capo+(key?' · סולם נשמע: '+soundingKey(key,capo):' · סולם נשמע: לא הוגדר (בחרי סולם אקורדים)')}
+function renderSong(){let s=data.find(x=>x.id===current);if(!s)return;$('transposeLabel').textContent=formatOffset(offset);$('capo').value=String(s.capo||0);$('songKey').value=s.songKey||'';$('capoPrint').textContent=capoDescription(s);renderViewerSources(s);$('lines').replaceChildren();s.body.split('\n').forEach((row,index)=>{let {chords,words}=parseRow(row);let div=document.createElement('div');div.className='line';if(headingRow(words,chords))div.classList.add('section-heading');let a=document.createElement('div');a.className='chords';let chordText=document.createElement('span');chordText.className='chord-text';chordText.textContent=trans(chords,offset);a.append(chordText);let b=document.createElement('div');b.className='lyrics';b.textContent=words;if(/[A-Za-z]{3,}/.test(words)&&/[\u0590-\u05ff]/.test(words)){b.classList.add('suspicious');b.title='ייתכן שזוהה טקסט באנגלית בטעות. בדקי את השורה.'}div.append(a,b);let tools=document.createElement('div');tools.className='line-actions noprint';let btn=document.createElement('button');btn.className='mini-edit';btn.textContent='✎';btn.title='תקני שורה';btn.setAttribute('aria-label','עריכת שורה '+(index+1));btn.onclick=()=>editRow(index);tools.append(btn);a.prepend(tools);$('lines').append(div)});alignSongColumns();}
+function alignSongColumns(){
+ // Both columns have one song-wide width. Chords are left-aligned;
+ // lyrics are right-aligned. The longest chord group sets the chord width.
+ const host=$('lines'), rows=[...host.querySelectorAll('.line')];
+ if(!rows.length)return;
+ const measure=document.createElement('canvas').getContext('2d');
+ let maxChord=0,maxWords=0;
+ for(const row of rows){
+  const chord=row.querySelector('.chord-text'),lyric=row.querySelector('.lyrics');
+  for(const [node,kind] of [[chord,'chord'],[lyric,'lyric']]){
+   const style=getComputedStyle(node);measure.font=`${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+   const width=Math.ceil(Math.max(0,...(node.textContent||'').split('\n').map(t=>measure.measureText(t).width)));
+   if(kind==='chord')maxChord=Math.max(maxChord,width);else maxWords=Math.max(maxWords,width);
+  }
+ }
+ const chordWidth=maxChord+12,lyricsWidth=maxWords+8,gap=10;
+ host.style.setProperty('--song-chord-width',chordWidth+'px');
+ host.style.setProperty('--song-lyrics-width',lyricsWidth+'px');
+ host.style.setProperty('--song-total-width',(chordWidth+lyricsWidth+gap)+'px');
+}
+function shift(n){$('easyStatus').textContent='';offset+=n;let s=data.find(x=>x.id===current);s.offset=offset;persist();renderSong()}function download(name,content,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function safeSongFilename(title){return (title||'שיר').trim().replace(/[\\/:*?"<>|\x00-\x1f]/g,'-').replace(/\.+$/,'').trim()||'שיר'}function exportWord(){let s=data.find(x=>x.id===current);let lines=s.body.split('\n').map(parseRow);
+let maxChord=Math.max(1,...lines.map(p=>trans(p.chords,offset).length));
+let chordWidth=Math.max(75,Math.ceil(maxChord*8.5)+14);
+let rows=lines.map(p=>{let chord=trans(p.chords,offset);return `<tr><td dir="ltr" width="${chordWidth}" style="width:${chordWidth}px;color:#514cbb;text-align:left;vertical-align:top;white-space:pre-wrap;padding:4px 10px 4px 0;font-weight:bold">${escapeHtml(chord)}</td><td dir="rtl" style="text-align:right;vertical-align:top;white-space:pre-wrap;padding:4px 0">${escapeHtml(p.words)}</td></tr>`}).join('');
+let html=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><body style="font-family:Arial"><h1>${escapeHtml(s.title)}</h1><p>${escapeHtml(s.artist)}</p><p>${escapeHtml(capoDescription(s))}</p><table dir="ltr" align="right" style="border-collapse:collapse;table-layout:auto;width:auto;margin-left:auto;margin-right:0">${rows}</table></body></html>`;
+download(safeSongFilename(s.title)+'.doc','\ufeff'+html,'application/msword;charset=utf-8')}
+$('songKey').onchange=()=>{let s=data.find(x=>x.id===current);if(!s)return;s.songKey=$('songKey').value;persist();renderSong()};$('capo').onchange=()=>{let s=data.find(x=>x.id===current);if(!s)return;s.capo=Number($('capo').value);persist();renderSong()};$('new').onclick=()=>newSong();$('home').onclick=renderLibrary;$('cancel').onclick=renderLibrary;$('search').oninput=renderLibrary;$('save').onclick=()=>{let title=$('title').value.trim();if(!title)return alert('יש להזין שם שיר');let s=editing?data.find(x=>x.id===editing):{id:crypto.randomUUID(),offset:0};Object.assign(s,{title,artist:$('artist').value.trim(),body:$('body').value,images:pendingImages.slice()});if(!editing)data.unshift(s);try{persist()}catch(e){if(!editing)data=data.filter(x=>x.id!==s.id);return alert('לא ניתן לשמור: אחסון הדפדפן מלא. נסי לצמצם תמונות או לייצא גיבוי.')}openSong(s.id)};$('editSong').onclick=()=>newSong(current);$('deleteSong').onclick=()=>{if(confirm('למחוק את השיר?')){data=data.filter(s=>s.id!==current);persist();renderLibrary()}};$('up').onclick=()=>shift(1);$('down').onclick=()=>shift(-1);$('reset').onclick=()=>{offset=0;data.find(s=>s.id===current).offset=0;persist();$('easyStatus').textContent='';renderSong()};$('easy').onclick=()=>{let s=data.find(x=>x.id===current),best=easyOffset(s.body);if(!best)return alert('לא נמצאו אקורדים בשיר.');offset=best.n;s.offset=offset;persist();renderSong();$('easyStatus').textContent='גרסה קלה משוערת לפי אקורדים נפוצים בגיטרה בכיוון רגיל, ללא קאפו. ייתכן שגרסה אחרת תהיה נוחה יותר ביוקולילי בריטון או לנגינה שלך.';};$('pdf').onclick=()=>{let s=data.find(x=>x.id===current);if(!s)return;let originalTitle=document.title;document.title=safeSongFilename(s.title);window.addEventListener('afterprint',()=>{document.title=originalTitle},{once:true});window.print();};$('word').onclick=exportWord;$('backup').onclick=()=>download('songbook-backup.json',JSON.stringify(data,null,2),'application/json');$('restore').onchange=async e=>{let file=e.target.files[0];if(!file)return;try{let d=JSON.parse(await file.text());if(!Array.isArray(d)||!d.every(x=>typeof x.id==='string'&&typeof x.body==='string'&&typeof x.title==='string'))throw Error();if(confirm('לייבא את הגיבוי? שירים בעלי מזהה זהה יוחלפו.')){let m=new Map(data.map(x=>[x.id,x]));d.forEach(x=>m.set(x.id,x));data=[...m.values()];persist();renderLibrary()}}catch(e){alert('קובץ גיבוי לא תקין')}};
+let pendingImages=[];
+function renderSavedImages(images){const p=$('previews'),source=$('sourceImages');p.replaceChildren();source.replaceChildren();for(const url of images){for(const target of [p,source]){const img=document.createElement('img');img.src=url;img.alt='תמונת שיר מקורית';target.append(img)}}}
+function renderViewerSources(song){const holder=$('viewerSourceImages');holder.replaceChildren();const imgs=song.images||[];$('toggleSource').disabled=!imgs.length;$('sourceHint').textContent=imgs.length?imgs.length+' תמונות שמורות':'אין תמונות מקור שמורות לשיר זה';if(!imgs.length)$('viewerSource').classList.add('hidden');for(const url of imgs){let img=document.createElement('img');img.src=url;img.alt='תמונת המקור של השיר';holder.append(img)}}
+$('toggleSource').onclick=()=>{let hidden=$('viewerSource').classList.toggle('hidden');$('toggleSource').textContent=hidden?'הצגת תמונות המקור':'הסתרת תמונות המקור'};
+async function compactImage(file){const bitmap=await createImageBitmap(file);const max=1100,ratio=Math.min(1,max/Math.max(bitmap.width,bitmap.height));const c=document.createElement('canvas');c.width=Math.round(bitmap.width*ratio);c.height=Math.round(bitmap.height*ratio);const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(bitmap,0,0,c.width,c.height);bitmap.close();return c.toDataURL('image/jpeg',0.72)}
+// OCR: lazy-load Tesseract.js only when requested. Text recognition is best-effort.
+let ocrCancelled=false,ocrWorker=null,chordWorker=null;let ocrDebug=[];function debugOCR(stage,value){ocrDebug.push({stage,value});const el=$('ocrDiagnosticOutput');if(el)el.textContent=JSON.stringify(ocrDebug,null,2)};$('copyOCRDiagnostics').onclick=()=>navigator.clipboard.writeText($('ocrDiagnosticOutput').textContent).then(()=>alert('דוח האבחון הועתק')).catch(()=>alert('לא ניתן להעתיק. אפשר לסמן את הטקסט ידנית.'));
+// Tesseract sometimes doubles an isolated C into "Cc" on blue chord badges.
+// Normalize only this exact OCR artifact; never rewrite legitimate chord suffixes.
+function normalizeOCRChord(token){return token==='Cc'||token==='CC'||token==='cc'?'C':token;}
+const chordToken=/^(?:[A-G](?:#|b)?)(?:m(?:aj)?|maj|dim|aug|sus|add|M)?(?:\d{0,2})?(?:\([^)]+\))?(?:\/[A-G](?:#|b)?)?$/i;
+function isChordLine(s){const tokens=s.replace(/[|,:]+/g,' ').trim().split(/\s+/).filter(Boolean);return tokens.length>0&&tokens.length<=12&&tokens.every(t=>chordToken.test(t));}
+function processOCRText(text){let out=[],pending=[];for(let raw of text.split(/\r?\n/)){let line=raw.trim();if(!line)continue;line=line.replace(/[\u200e\u200f]/g,'');if(isChordLine(line)){pending.push(line);continue;}if(/^(?:פזמון|מעבר|בית)(?:\s*\d+)?\s*[:：]?\s*$/.test(line)){if(pending.length){out.push(pending.join(' ')+' |');pending=[]}out.push('| '+line);continue;}out.push((pending.length?pending.join(' '):'')+' | '+line);pending=[];}if(pending.length)out.push(pending.join(' ')+' |');return out.join('\n')}
+// Color-independent OCR: normalize contrast, then classify by script, chord grammar and layout.
+async function makeOCRCanvas(file){
+ const bitmap=await createImageBitmap(file),scale=bitmap.width<1500?2:1;
+ const canvas=document.createElement('canvas');canvas.width=bitmap.width*scale;canvas.height=bitmap.height*scale;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
+ const im=ctx.getImageData(0,0,canvas.width,canvas.height),d=im.data;
+ // Estimate the dominant background from sampled image luminance, not text hue.
+ const histogram=new Uint32Array(256);
+ for(let i=0;i<d.length;i+=64){const y=Math.round(.2126*d[i]+.7152*d[i+1]+.0722*d[i+2]);histogram[y]++;}
+ let background=0;for(let i=1;i<256;i++)if(histogram[i]>histogram[background])background=i;
+ const darkBackground=background<128;
+ // Convert both light and dark themes to dark text on a white background.
+ // Adaptive contrast relative to the dominant background preserves neutral/colored text.
+ for(let i=0;i<d.length;i+=4){
+  const y=.2126*d[i]+.7152*d[i+1]+.0722*d[i+2];
+  const contrast=darkBackground?y-background:background-y;
+  const ink=contrast>Math.max(28,Math.min(65,Math.abs(background-128)*.35));
+  d[i]=d[i+1]=d[i+2]=ink?0:255;d[i+3]=255;
+ }
+ ctx.putImageData(im,0,0);
+ return {image:canvas.toDataURL('image/png'),width:canvas.width,height:canvas.height,darkBackground};
+}
+function tsvLines(tsv){
+ if(!tsv)return [];
+ const groups=new Map();
+ for(const row of tsv.trim().split(/\r?\n/).slice(1)){
+  const a=row.split('\t');if(a.length<12||a[0]!=='5')continue;
+  const word=a.slice(11).join('\t').trim();if(!word)continue;
+  const key=a.slice(1,5).join('-');
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key).push({text:word,x:+a[6],y:+a[7],w:+a[8],h:+a[9]});
+ }
+ return [...groups.values()].map(words=>({
+  words,x:Math.min(...words.map(w=>w.x)),y:Math.min(...words.map(w=>w.y)),
+  h:Math.max(...words.map(w=>w.y+w.h))-Math.min(...words.map(w=>w.y)),
+  text:words.map(w=>w.text).join(' ')
+ })).sort((a,b)=>a.y-b.y);
+}
+function repairHebrew(s){return s.replace(/([\u05d0-\u05ea])['’\x60]([\u05d0-\u05ea])/g,'$1י$2');}
+function chordCandidates(rows){
+ const out=[];
+ for(const row of rows)for(const word of row.words){
+  // English OCR can combine nearby chord tokens; retain each valid token.
+  const parts=word.text.replace(/[|,:;]+/g,' ').split(/\s+/).filter(Boolean);
+  for(const part of parts){
+   const token=normalizeOCRChord(part.replace(/[♯]/g,'#').replace(/[♭]/g,'b'));
+   if(!chordToken.test(token))continue;
+   out.push({text:token,x:word.x+word.w/2,y:word.y+word.h/2,h:word.h});
+  }
+ }
+ return out;
+}
+function assembleLayout(hebrewRows,englishRows){
+ const lyrics=hebrewRows.filter(row=>/[\u0590-\u05ff]/.test(row.text));
+ const candidates=chordCandidates(englishRows),used=new Set(),out=[];
+ for(let i=0;i<lyrics.length;i++){
+  const row=lyrics[i],top=row.y,bottom=row.y+row.h;
+  const prevBottom=i?lyrics[i-1].y+lyrics[i-1].h:-Infinity;
+  const nextTop=i+1<lyrics.length?lyrics[i+1].y:Infinity;
+  const lyricText=repairHebrew(row.words.filter(w=>/[\u0590-\u05ff]/.test(w.text)).sort((a,b)=>b.x-a.x).map(w=>w.text).join(' ').trim());
+  if(!lyricText)continue;
+  const selected=[];
+  for(let j=0;j<candidates.length;j++){
+   if(used.has(j))continue;
+   const c=candidates[j];
+   // Prefer chords above this line; also allow chords on the same line.
+   const above=c.y>=Math.max(prevBottom,top-Math.max(55,row.h*3))&&c.y<top+row.h*.3;
+   const inline=c.y>=top+row.h*.3&&c.y<=bottom+Math.max(5,row.h*.2)&&c.y<nextTop;
+   if(above||inline){selected.push(c);used.add(j);}
+  }
+  selected.sort((a,b)=>b.x-a.x);
+  out.push(selected.map(c=>c.text).join(' ')+' | '+lyricText);
+ }
+ const remaining=candidates.filter((_,i)=>!used.has(i)).sort((a,b)=>a.y-b.y||b.x-a.x);
+ if(remaining.length)out.push(remaining.map(c=>c.text).join(' ')+' |');
+ debugOCR('layout',{hebrewLines:lyrics.length,chords:candidates.length,unmatched:remaining.length});
+ return out.join('\n');
+}
+async function recognizeLayout(file){
+ $('ocrStatus').textContent='מזהה עברית ואקורדים ללא תלות בצבע…';
+ const prepared=await makeOCRCanvas(file);
+ debugOCR('image',{width:prepared.width,height:prepared.height,darkBackground:prepared.darkBackground});
+ const heb=await ocrWorker.recognize(prepared.image,{}, {tsv:true});
+ if(ocrCancelled)return '';
+ // Sparse-text mode improves detection of isolated one-letter chord symbols.
+ await chordWorker.setParameters({tessedit_pageseg_mode:'11'});
+ let eng;
+ try{eng=await chordWorker.recognize(prepared.image,{}, {tsv:true});}
+ finally{await chordWorker.setParameters({tessedit_pageseg_mode:'3'});}
+ if(ocrCancelled)return '';
+ const hebRows=tsvLines(heb.data.tsv),engRows=tsvLines(eng.data.tsv);
+ const result=assembleLayout(hebRows,engRows);
+ debugOCR('assembled lines',result);
+ return result;
+}
+async function loadOCR(){if(window.Tesseract)return;await new Promise((resolve,reject)=>{let sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=resolve;sc.onerror=()=>reject(Error('לא ניתן לטעון את מנוע הזיהוי. בדקי את החיבור לאינטרנט.'));document.head.append(sc)})}
+$('clearOCR').onclick=()=>{if($('body').value.trim()&&!confirm('לנקות את כל הטקסט והאקורדים בשדה העריכה? השיר השמור בספרייה לא יימחק עד שתלחצי על שמירה.'))return;$('body').value='';$('ocrStatus').textContent='שדה הזיהוי נוקה. ניתן להעלות ולזהות שוב.';};
+$('stopOCR').onclick=async()=>{ocrCancelled=true;$('ocrStatus').textContent='מבטל זיהוי…';if(ocrWorker){try{await ocrWorker.terminate()}catch(e){}ocrWorker=null}if(chordWorker){try{await chordWorker.terminate()}catch(e){}chordWorker=null}};
+$('recognize').onclick=async()=>{ocrDebug=[];debugOCR('version','layout-ocr-prototype-1');const files=[...$('images').files];if(!files.length)return alert('בחרי לפחות תמונה אחת');ocrCancelled=false;$('recognize').disabled=true;$('stopOCR').classList.remove('hidden');$('ocrStatus').textContent='טוען מנוע זיהוי…';let parts=[];try{await loadOCR();ocrWorker=await Tesseract.createWorker('heb',1,{logger:m=>{if(m.status&&m.progress!=null)$('ocrStatus').textContent=`${m.status} — ${Math.round(m.progress*100)}%`}});chordWorker=await Tesseract.createWorker('eng');await chordWorker.setParameters({tessedit_char_whitelist:'ABCDEFGabcdefg#bmajinsudgM0123456789/()+- ',preserve_interword_spaces:'1'});for(let i=0;i<files.length;i++){if(ocrCancelled)break;$('ocrStatus').textContent=`מזהה תמונה ${i+1} מתוך ${files.length}…`;let detected=null;try{detected=await recognizeLayout(files[i])}catch(err){console.warn('Layout OCR fallback',err)}if(ocrCancelled)break;if(!detected){let result=await ocrWorker.recognize(files[i]);detected=processOCRText(result.data.text)}parts.push(detected);}if(!ocrCancelled){let previous=$('body').value.trim(),detected=parts.filter(Boolean).join('\n');if(!detected)throw Error('לא זוהה טקסט. נסי צילום חד וברור יותר.');if(previous&&!confirm('להחליף את הטקסט הקיים בתוצאה שזוהתה?'))$('body').value=previous+'\n'+detected;else $('body').value=detected;$('ocrStatus').textContent='הזיהוי הסתיים. השווי את התוצאה מול התמונות שמוצגות לצד שדה העריכה.  האקורדים נותחו לפי טקסט ומיקום, ללא תלות בצבע. בדקי במיוחד את הפזמון, אקורדים חסרים וטעויות בזיהוי י׳ לפני השמירה.';}else $('ocrStatus').textContent='הזיהוי בוטל.';}catch(err){if(!ocrCancelled){$('ocrStatus').textContent='שגיאה בזיהוי: '+(err.message||err);}}finally{if(ocrWorker){try{await ocrWorker.terminate()}catch(e){}ocrWorker=null;}if(chordWorker){try{await chordWorker.terminate()}catch(e){}chordWorker=null;}$('recognize').disabled=false;$('stopOCR').classList.add('hidden')}};
+$('images').onchange=async e=>{const files=[...e.target.files];$('ocrStatus').textContent='מכין תמונות לשמירה…';try{const added=await Promise.all(files.map(compactImage));pendingImages.push(...added);renderSavedImages(pendingImages);$('ocrStatus').textContent='התמונות מוכנות ויישמרו עם השיר. לחצי על זיהוי כדי לקרוא אותן.'}catch(err){$('ocrStatus').textContent='שגיאה בהכנת תמונות: '+err.message}};renderLibrary();
+</script></body></html>
